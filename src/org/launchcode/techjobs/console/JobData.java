@@ -7,9 +7,7 @@ import org.apache.commons.csv.CSVRecord;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by LaunchCode
@@ -74,14 +72,43 @@ public class JobData {
 
         for (HashMap<String, String> row : allJobs) {
 
-            String aValue = row.get(column);
+            String aValue = row.get(column).toLowerCase();
 
-            if (aValue.contains(value)) {
+            if (aValue.contains(value.toLowerCase())) {
                 jobs.add(row);
             }
         }
 
+        //if search term does not match print error message
+        if(jobs.isEmpty()) {
+            System.out.println("Your search term " + "'" + value + "'" + " did not match anything in the " + "'" + column + "'" + " column of our database.");
+        }
+
         return jobs;
+    }
+
+    public static ArrayList<HashMap<String, String>> findByValue(String searchTerm) {
+        loadData();
+
+        ArrayList<HashMap<String, String>> jobsArr = new ArrayList<>();
+
+        searchTerm = searchTerm.toLowerCase();
+
+
+        for(HashMap<String, String> jobListing : allJobs) {
+
+            String allValues = jobListing.values().toString().toLowerCase();
+
+                if(allValues.contains(searchTerm)) {
+                    jobsArr.add(jobListing);
+                }
+        }
+
+        if(jobsArr.isEmpty()) {
+            System.out.println("Your search term " + "'" + searchTerm + "'" + " did not match anything in our database.");
+        }
+
+        return jobsArr;
     }
 
     /**
@@ -96,7 +123,7 @@ public class JobData {
 
         try {
 
-            // Open the CSV file and set up pull out column header info and records
+            // Open the CSV file and set up pull out column header info and 0s
             Reader in = new FileReader(DATA_FILE);
             CSVParser parser = CSVFormat.RFC4180.withFirstRecordAsHeader().parse(in);
             List<CSVRecord> records = parser.getRecords();
